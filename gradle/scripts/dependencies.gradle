@@ -1,5 +1,18 @@
 apply from: 'gradle/scripts/helpers.gradle'
 
+def debug_groovyscript = false
+final def mod_dependencies = [
+        'abyssalcraft-53686:5482166': [true],
+        'groovyscript-687577:5635093': [debug_groovyscript],
+]
+
+final def runtime_dependencies = [
+        'top-245211:2667280': [true],
+        'had-enough-items-557549:4543375': [true],
+        'universal-tweaks-705000:5529764': [debug_groovyscript],
+        'configanytime-870276:5212709': [debug_groovyscript],
+]
+
 repositories {
     // Other repositories described by default:
     // CleanroomMC: https://maven.cleanroommc.com
@@ -59,4 +72,19 @@ dependencies {
     // implementation ('com.google.code.gson:gson:2.8.6') {
     //     transitive = false
     // }
+
+    mod_dependencies.entrySet().forEach {
+        def mod = rfg.deobf('curse.maven:' + it.key)
+        compileOnly mod
+        if (it.value.any { it.toBoolean() }) {
+            runtimeOnly mod
+        }
+    }
+
+    runtime_dependencies.entrySet().forEach {
+        def mod = rfg.deobf('curse.maven:' + it.key)
+        if (it.value.any { it.toBoolean() }) {
+            runtimeOnly mod
+        }
+    }
 }
