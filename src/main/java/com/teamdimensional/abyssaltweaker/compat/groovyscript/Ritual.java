@@ -5,6 +5,7 @@ import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.IIngredient;
 import com.cleanroommc.groovyscript.api.documentation.annotations.*;
 import com.cleanroommc.groovyscript.helper.SimpleObjectStream;
+import com.cleanroommc.groovyscript.helper.ingredient.ItemsIngredient;
 import com.cleanroommc.groovyscript.helper.ingredient.OreDictIngredient;
 import com.cleanroommc.groovyscript.helper.recipe.AbstractRecipeBuilder;
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
@@ -13,10 +14,14 @@ import com.shinoow.abyssalcraft.api.ritual.NecronomiconInfusionRitual;
 import com.shinoow.abyssalcraft.api.ritual.NecronomiconRitual;
 import com.shinoow.abyssalcraft.api.ritual.RitualRegistry;
 import com.teamdimensional.abyssaltweaker.Tags;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,6 +50,62 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
     @MethodDescription(type = MethodDescription.Type.QUERY)
     public SimpleObjectStream<NecronomiconRitual> streamRecipes() {
         return new SimpleObjectStream<>(RitualRegistry.instance().getRituals()).setRemover(this::remove);
+    }
+
+    @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("item('abyssalcraft:oc')"))
+    public boolean removeByOutput(IIngredient output) {
+        return RitualRegistry.instance().getRituals().removeIf(r -> {
+            if (r instanceof NecronomiconInfusionRitual && output.test(((NecronomiconInfusionRitual) r).getItem())) {
+                addBackup(r);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private IIngredient toIngredient(Object o) {
+        if (o instanceof String) {
+            return new OreDictIngredient((String) o);
+        } else if (o instanceof ItemStack) {
+            return new ItemsIngredient((ItemStack) o);
+        } else if (o instanceof Block) {
+            return new ItemsIngredient(new ItemStack(((Block) o)));
+        } else if (o instanceof Item) {
+            return new ItemsIngredient(new ItemStack(((Item) o)));
+        } else if (o instanceof ItemStack[]) {
+            return new ItemsIngredient((ItemStack[]) o);
+        } else if (o instanceof List) {
+            List<ItemStack> newList = new ArrayList<>();
+            for (Object o1 : (List<?>) o) {
+                if (o1 instanceof ItemStack) {
+                    newList.add((ItemStack) o1);
+                }
+            }
+            return new ItemsIngredient(newList);
+        } else return new ItemsIngredient();
+    }
+
+    @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("item('abyssalcraft:lifecrystal')"))
+    public boolean removeByCenter(IIngredient input) {
+        return RitualRegistry.instance().getRituals().removeIf(r -> {
+            IIngredient sac = toIngredient(r.getSacrifice());
+            if (Arrays.stream(input.getMatchingStacks()).anyMatch(sac)) {
+                addBackup(r);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("'dreadInfusedGatewayKey'"))
+    public boolean removeByName(String name) {
+        return RitualRegistry.instance().getRituals().removeIf(r -> {
+            if (r.getID().equals(name)) {
+                addBackup(r);
+                return true;
+            }
+            return false;
+        });
     }
 
     @MethodDescription(type = MethodDescription.Type.REMOVAL, priority = 2000, example = @Example(commented = true))
