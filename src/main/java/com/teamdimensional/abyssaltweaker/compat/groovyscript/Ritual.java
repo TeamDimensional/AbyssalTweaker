@@ -5,7 +5,6 @@ import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.IIngredient;
 import com.cleanroommc.groovyscript.api.documentation.annotations.*;
 import com.cleanroommc.groovyscript.helper.SimpleObjectStream;
-import com.cleanroommc.groovyscript.helper.ingredient.ItemsIngredient;
 import com.cleanroommc.groovyscript.helper.ingredient.OreDictIngredient;
 import com.cleanroommc.groovyscript.helper.recipe.AbstractRecipeBuilder;
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
@@ -14,9 +13,6 @@ import com.shinoow.abyssalcraft.api.ritual.NecronomiconInfusionRitual;
 import com.shinoow.abyssalcraft.api.ritual.NecronomiconRitual;
 import com.shinoow.abyssalcraft.api.ritual.RitualRegistry;
 import com.teamdimensional.abyssaltweaker.Tags;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
@@ -25,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-@RegistryDescription(linkGenerator = Tags.MOD_ID)
+@RegistryDescription(linkGenerator = Tags.MOD_ID, admonition = @Admonition(value = "groovyscript.wiki.abyssaltweaker.ritual.note", type = Admonition.Type.WARNING))
 public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
     @Override
     @GroovyBlacklist
@@ -63,32 +59,10 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         });
     }
 
-    private IIngredient toIngredient(Object o) {
-        if (o instanceof String) {
-            return new OreDictIngredient((String) o);
-        } else if (o instanceof ItemStack) {
-            return new ItemsIngredient((ItemStack) o);
-        } else if (o instanceof Block) {
-            return new ItemsIngredient(new ItemStack(((Block) o)));
-        } else if (o instanceof Item) {
-            return new ItemsIngredient(new ItemStack(((Item) o)));
-        } else if (o instanceof ItemStack[]) {
-            return new ItemsIngredient((ItemStack[]) o);
-        } else if (o instanceof List) {
-            List<ItemStack> newList = new ArrayList<>();
-            for (Object o1 : (List<?>) o) {
-                if (o1 instanceof ItemStack) {
-                    newList.add((ItemStack) o1);
-                }
-            }
-            return new ItemsIngredient(newList);
-        } else return new ItemsIngredient();
-    }
-
     @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("item('abyssalcraft:lifecrystal')"))
     public boolean removeByCenter(IIngredient input) {
         return RitualRegistry.instance().getRituals().removeIf(r -> {
-            IIngredient sac = toIngredient(r.getSacrifice());
+            IIngredient sac = GSHelpers.ritualInputToIngredient(r.getSacrifice());
             if (Arrays.stream(input.getMatchingStacks()).anyMatch(sac)) {
                 addBackup(r);
                 return true;
