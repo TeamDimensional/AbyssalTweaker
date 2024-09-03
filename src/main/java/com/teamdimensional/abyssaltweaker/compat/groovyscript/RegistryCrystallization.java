@@ -28,6 +28,7 @@ public class RegistryCrystallization extends VirtualizedRegistry<Crystallization
 
     public void add(Crystallization t) {
         CrystallizerRecipes.instance().getCrystallizationList().add(t);
+        addScripted(t);
     }
 
     public boolean remove(Crystallization t) {

@@ -30,6 +30,7 @@ public class RegistryMaterialization extends VirtualizedRegistry<Materialization
 
     public void add(Materialization t) {
         MaterializerRecipes.instance().getMaterializationList().add(t);
+        addScripted(t);
     }
 
     public boolean remove(Materialization t) {

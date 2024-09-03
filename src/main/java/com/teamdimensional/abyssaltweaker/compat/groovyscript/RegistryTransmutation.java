@@ -29,6 +29,7 @@ public class RegistryTransmutation extends VirtualizedRegistry<Transmutation> {
 
     public void add(Transmutation t) {
         TransmutatorRecipes.instance().getTransmutationList().add(t);
+        addScripted(t);
     }
 
     public boolean remove(Transmutation t) {
@@ -58,9 +59,7 @@ public class RegistryTransmutation extends VirtualizedRegistry<Transmutation> {
     @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("item('minecraft:diamond')"))
     public boolean removeByInput(IIngredient input) {
         return TransmutatorRecipes.instance().getTransmutationList().removeIf(r -> {
-            AbyssalTweaker.LOGGER.info("Input: {}, test against: {}", input, r.INPUT);
             if (GSHelpers.compareItemstacks(input, r.INPUT)) {
-                AbyssalTweaker.LOGGER.info("Yea!");
                 addBackup(r);
                 return true;
             }

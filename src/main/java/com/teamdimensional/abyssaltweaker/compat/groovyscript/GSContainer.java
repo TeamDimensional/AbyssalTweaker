@@ -10,12 +10,4 @@ public class GSContainer extends GroovyPropertyContainer {
     public final RegistryMaterialization materializer = new RegistryMaterialization();
     public final Fuel fuel = new Fuel();
 
-    public GSContainer() {
-        addProperty(ritual);
-        addProperty(transmutator);
-        addProperty(crystallizer);
-        addProperty(materializer);
-        addProperty(fuel);
-    }
-
 }

@@ -8,6 +8,7 @@ import com.cleanroommc.groovyscript.api.documentation.annotations.RegistryDescri
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
 import com.shinoow.abyssalcraft.api.AbyssalCraftAPI;
 import com.shinoow.abyssalcraft.api.event.FuelBurnTimeEvent;
+import com.teamdimensional.abyssaltweaker.Tags;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Mod.EventBusSubscriber
-@RegistryDescription(category = RegistryDescription.Category.ENTRIES)
+@RegistryDescription(category = RegistryDescription.Category.ENTRIES, linkGenerator = Tags.MOD_ID)
 public class Fuel extends VirtualizedRegistry<IIngredient> {
 
     private static final Map<IIngredient, Integer> transmutatorFuels = new HashMap<>();
