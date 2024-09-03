@@ -9,6 +9,10 @@ public class AbyssalTweakerConfig {
     @Config.RequiresMcRestart
     public static String[] dimension_pairs = {};
 
+    @Config.Comment("Pairs of comma separated dimension ID and dimension names (i.e. -1,Nether). This is used for Gateway Key tooltip as well as Ritual JEI information.")
+    @Config.RequiresMcRestart
+    public static String[] dimension_names = {};
+
     @Config.Comment("Pairs of comma separated dimension ID and key tier (0 = basic, 1 = dreaded, 2 = omothol, 3 = silver). Example: '-1,2' will allow Omothol and higher tiers to go into Nether. Default for non-AC keys is 0. Setting the tier of a dimension to 4 removes it from the Gateway Key whitelist.")
     @Config.RequiresMcRestart
     public static String[] dimension_key_tiers = {};

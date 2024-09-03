@@ -24,6 +24,22 @@ public class ConfigHelper {
         return list;
     }
 
+    private static Map<Integer, String> getDimToNames() {
+        Map<Integer, String> map = new HashMap<>();
+        for (String s : AbyssalTweakerConfig.dimension_names) {
+            String[] split = s.split(",");
+            StringBuilder fullName = new StringBuilder();
+            for (int i = 1; i < split.length; i++) {
+                fullName.append(split[i]);
+                if (i < split.length - 1) {
+                    fullName.append(",");
+                }
+            }
+            map.put(Integer.parseInt(split[0]), fullName.toString());
+        }
+        return map;
+    }
+
     private static Map<Integer, Integer> listToMap(List<TwoNumbers> pairs, String name) {
         Map<Integer, Integer> map = new HashMap<>();
         for (TwoNumbers t : pairs) {
@@ -94,6 +110,10 @@ public class ConfigHelper {
                 }
                 dim.getConnectedDimensions().add(t.a);
             }
+        }
+
+        for (Map.Entry<Integer, String> entry : getDimToNames().entrySet()) {
+            DimensionDataRegistry.instance().addDimensionToName(entry.getKey(), entry.getValue());
         }
     }
 }
