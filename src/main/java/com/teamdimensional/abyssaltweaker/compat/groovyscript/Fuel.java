@@ -2,10 +2,11 @@ package com.teamdimensional.abyssaltweaker.compat.groovyscript;
 
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.IIngredient;
+import com.cleanroommc.groovyscript.api.IScriptReloadable;
 import com.cleanroommc.groovyscript.api.documentation.annotations.Example;
 import com.cleanroommc.groovyscript.api.documentation.annotations.MethodDescription;
 import com.cleanroommc.groovyscript.api.documentation.annotations.RegistryDescription;
-import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
+import com.cleanroommc.groovyscript.registry.NamedRegistry;
 import com.shinoow.abyssalcraft.api.AbyssalCraftAPI;
 import com.shinoow.abyssalcraft.api.event.FuelBurnTimeEvent;
 import com.teamdimensional.abyssaltweaker.Tags;
@@ -17,17 +18,19 @@ import java.util.Map;
 
 @Mod.EventBusSubscriber
 @RegistryDescription(category = RegistryDescription.Category.ENTRIES, linkGenerator = Tags.MOD_ID)
-public class Fuel extends VirtualizedRegistry<IIngredient> {
+public class Fuel extends NamedRegistry implements IScriptReloadable {
 
     private static final Map<IIngredient, Integer> transmutatorFuels = new HashMap<>();
     private static final Map<IIngredient, Integer> crystallizerFuels = new HashMap<>();
 
     @Override
     public void onReload() {
-        // This is a bit deranged, we store transmutator fuels in scripted and crystallizer fuels in backup
-        removeScripted().forEach(transmutatorFuels::remove);
-        restoreFromBackup().forEach(crystallizerFuels::remove);
+        transmutatorFuels.clear();
+        crystallizerFuels.clear();
     }
+
+    @Override
+    public void afterScriptLoad() {}
 
     @MethodDescription(example = @Example("item('minecraft:cobblestone'), 50"), type = MethodDescription.Type.ADDITION)
     public void addTransmutator(IIngredient stack, int fuel) {
@@ -36,7 +39,6 @@ public class Fuel extends VirtualizedRegistry<IIngredient> {
             return;
         }
         transmutatorFuels.put(stack, fuel);
-        addScripted(stack);
     }
 
     @MethodDescription(example = @Example("item('minecraft:blaze_rod')"))
@@ -51,7 +53,6 @@ public class Fuel extends VirtualizedRegistry<IIngredient> {
             return;
         }
         crystallizerFuels.put(stack, fuel);
-        addBackup(stack);
     }
 
     @MethodDescription(example = @Example("item('abyssalcraft:dreadshard')"))

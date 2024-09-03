@@ -9,7 +9,6 @@ import com.cleanroommc.groovyscript.helper.recipe.AbstractRecipeBuilder;
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
 import com.shinoow.abyssalcraft.api.recipe.Transmutation;
 import com.shinoow.abyssalcraft.api.recipe.TransmutatorRecipes;
-import com.teamdimensional.abyssaltweaker.AbyssalTweaker;
 import com.teamdimensional.abyssaltweaker.Tags;
 import net.minecraft.item.ItemStack;
 
