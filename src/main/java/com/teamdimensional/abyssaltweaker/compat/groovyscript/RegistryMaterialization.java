@@ -78,8 +78,8 @@ public class RegistryMaterialization extends VirtualizedRegistry<Materialization
         return new RecipeBuilder();
     }
 
-    @Property(property = "input", valid = @Comp("1"))
-    @Property(property = "output", valid = {@Comp(value = "1", type = Comp.Type.GTE), @Comp(value = "2", type = Comp.Type.LTE)})
+    @Property(property = "input", valid = {@Comp(value = "1", type = Comp.Type.GTE), @Comp(value = "5", type = Comp.Type.LTE)})
+    @Property(property = "output", valid = @Comp("1"))
     public static class RecipeBuilder extends AbstractRecipeBuilder<Materialization> {
         @Override
         public String getErrorMsg() {

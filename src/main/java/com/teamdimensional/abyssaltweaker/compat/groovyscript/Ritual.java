@@ -109,10 +109,10 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         @Property(valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(value = "4", type = Comp.Type.LTE)})
         private int bookTier = 0;
 
-        @Property
+        @Property(defaultValue = "any dimension")
         private int dimension = OreDictionary.WILDCARD_VALUE;
 
-        @Property
+        @Property(defaultValue = "3", valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(type = Comp.Type.LT, value = "8")})
         private int particle = 3;
 
         @RecipeBuilderMethodDescription
@@ -127,7 +127,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             return this;
         }
 
-        @RecipeBuilderMethodDescription
+        @RecipeBuilderMethodDescription(field = "bookTier")
         public RecipeBuilder bookTier(int bookTier) {
             this.bookTier = bookTier;
             return this;
@@ -145,7 +145,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             return this;
         }
 
-        @RecipeBuilderMethodDescription
+        @RecipeBuilderMethodDescription(field = "pe")
         public RecipeBuilder energy(int energy) {
             return pe(energy);
         }
@@ -156,7 +156,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             return this;
         }
 
-        @RecipeBuilderMethodDescription
+        @RecipeBuilderMethodDescription(field = "bookTier")
         public RecipeBuilder bookTier(String bookTier) {
             switch (bookTier.toLowerCase(Locale.ROOT)) {
                 case "normal":
@@ -183,7 +183,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             return this;
         }
 
-        @RecipeBuilderMethodDescription
+        @RecipeBuilderMethodDescription(field = "sacrifice")
         public RecipeBuilder requiresSacrifice() {
             return sacrifice(true);
         }
@@ -201,7 +201,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             msg.add(RitualRegistry.instance().getRitual(name) != null, "Ritual with the name {} already exists", name);
             msg.add(bookTier < 0 || bookTier > 4, "Book tier must be between 0 and 4");
             int particleCount = EnumRitualParticle.values().length;
-            msg.add(particle < 0 || particle > particleCount, "Book tier must be between 0 and {}", particleCount);
+            msg.add(particle < 0 || particle >= particleCount, "Book tier must be between 0 and {}", particleCount);
             // NOTE: this breaks with the config tweaking because config tweaking runs in INIT and this recipe is first added in PRE INIT
             // msg.add(dimension == OreDictionary.WILDCARD_VALUE || DimensionDataRegistry.instance().getDataForDim(dimension) != null, "Rituals cannot be performed in dimension {}", dimension);
         }
