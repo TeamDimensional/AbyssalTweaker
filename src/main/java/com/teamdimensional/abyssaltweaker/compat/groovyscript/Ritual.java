@@ -201,7 +201,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             msg.add(RitualRegistry.instance().getRitual(name) != null, "Ritual with the name {} already exists", name);
             msg.add(bookTier < 0 || bookTier > 4, "Book tier must be between 0 and 4");
             int particleCount = EnumRitualParticle.values().length;
-            msg.add(particle < 0 || particle >= particleCount, "Book tier must be between 0 and {}", particleCount);
+            msg.add(particle < 0 || particle >= particleCount, "Particle ID must be between 0 and {}", particleCount);
             // NOTE: this breaks with the config tweaking because config tweaking runs in INIT and this recipe is first added in PRE INIT
             // msg.add(dimension == OreDictionary.WILDCARD_VALUE || DimensionDataRegistry.instance().getDataForDim(dimension) != null, "Rituals cannot be performed in dimension {}", dimension);
         }
