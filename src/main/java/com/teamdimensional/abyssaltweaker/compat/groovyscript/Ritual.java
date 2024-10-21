@@ -8,11 +8,10 @@ import com.cleanroommc.groovyscript.helper.SimpleObjectStream;
 import com.cleanroommc.groovyscript.helper.ingredient.OreDictIngredient;
 import com.cleanroommc.groovyscript.helper.recipe.AbstractRecipeBuilder;
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
-import com.shinoow.abyssalcraft.api.ritual.EnumRitualParticle;
-import com.shinoow.abyssalcraft.api.ritual.NecronomiconInfusionRitual;
-import com.shinoow.abyssalcraft.api.ritual.NecronomiconRitual;
-import com.shinoow.abyssalcraft.api.ritual.RitualRegistry;
+import com.shinoow.abyssalcraft.api.ritual.*;
 import com.teamdimensional.abyssaltweaker.Tags;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
@@ -21,7 +20,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-@RegistryDescription(linkGenerator = Tags.MOD_ID, admonition = @Admonition(value = "groovyscript.wiki.abyssaltweaker.ritual.note", type = Admonition.Type.WARNING))
+@RegistryDescription(linkGenerator = Tags.MOD_ID, admonition = {
+    @Admonition(value = "groovyscript.wiki.abyssaltweaker.ritual.note0", type = Admonition.Type.WARNING),
+    @Admonition(value = "groovyscript.wiki.abyssaltweaker.ritual.note1", type = Admonition.Type.WARNING),
+    @Admonition(value = "groovyscript.wiki.abyssaltweaker.ritual.note2", type = Admonition.Type.WARNING)
+})
 public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
     @Override
     @GroovyBlacklist
@@ -51,7 +54,18 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
     @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("item('abyssalcraft:oc')"))
     public boolean removeByOutput(IIngredient output) {
         return RitualRegistry.instance().getRituals().removeIf(r -> {
-            if (r instanceof NecronomiconInfusionRitual && output.test(((NecronomiconInfusionRitual) r).getItem())) {
+            if (r instanceof NecronomiconCreationRitual && output.test(((NecronomiconCreationRitual) r).getItem())) {
+                addBackup(r);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    @MethodDescription(type = MethodDescription.Type.REMOVAL, example = @Example("entity('abyssalcraft:dragonboss')"))
+    public boolean removeBySummonedMob(EntityEntry mob) {
+        return RitualRegistry.instance().getRituals().removeIf(r -> {
+            if (r instanceof NecronomiconSummonRitual && mob.getEntityClass().equals(((NecronomiconSummonRitual) r).getEntity())) {
                 addBackup(r);
                 return true;
             }
@@ -88,14 +102,25 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         RitualRegistry.instance().getRituals().clear();
     }
 
-    @RecipeBuilderDescription(example = @Example(".name('starInfusion').input(item('minecraft:clay'), item('minecraft:diamond'), ore('ingotGold'), ore('ingotIron')).output(item('minecraft:nether_star')).pe(500).requiresSacrifice().bookTier(3).dimension(50)"))
+    @RecipeBuilderDescription(example = {
+        @Example(".name('simpleRitual').centerItem(item('minecraft:diamond')).input(item('minecraft:diamond')).output(item('minecraft:diamond_block')).pe(100)"),
+        @Example(".name('starInfusion').centerItem(item('minecraft:clay')).input(item('minecraft:diamond'), ore('ingotGold'), ore('ingotIron')).output(item('minecraft:nether_star')).pe(500).requiresSacrifice().bookTier(3).dimension(50)"),
+        @Example(".name('simpleCreation').input(item('minecraft:iron_ingot'), item('minecraft:iron_ingot'), item('minecraft:iron_ingot'), item('minecraft:iron_ingot')).output(item('minecraft:gold_ingot')).pe(100)"),
+        @Example(".name('zombieSummoning').input(item('minecraft:rotten_flesh'), item('minecraft:iron_ingot'), item('minecraft:carrot'), item('minecraft:potato')).summonedMob(entity('minecraft:zombie')).pe(100)"),
+    })
     public RecipeBuilder recipeBuilder() {
         return new RecipeBuilder();
     }
 
     @Property(property = "input", valid = {@Comp(value = "1", type = Comp.Type.GTE), @Comp(value = "9", type = Comp.Type.LTE)})
     @Property(property = "output", valid = @Comp("1"))
-    public static class RecipeBuilder extends AbstractRecipeBuilder<NecronomiconInfusionRitual> {
+    public static class RecipeBuilder extends AbstractRecipeBuilder<NecronomiconRitual> {
+
+        @Property
+        private IIngredient centerItem = null;
+
+        @Property
+        private EntityEntry summonedMob = null;
 
         @Property
         private boolean sacrifice = false;
@@ -112,8 +137,8 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         @Property(defaultValue = "any dimension")
         private int dimension = OreDictionary.WILDCARD_VALUE;
 
-        @Property(defaultValue = "3", valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(type = Comp.Type.LT, value = "8")})
-        private int particle = 3;
+        @Property(valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(type = Comp.Type.LT, value = "8")})
+        private int particle = -1;
 
         @RecipeBuilderMethodDescription
         public RecipeBuilder sacrifice(boolean sacrifice) {
@@ -142,6 +167,18 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         @RecipeBuilderMethodDescription
         public RecipeBuilder pe(int pe) {
             this.pe = pe;
+            return this;
+        }
+
+        @RecipeBuilderMethodDescription
+        public RecipeBuilder centerItem(IIngredient centerItem) {
+            this.centerItem = centerItem;
+            return this;
+        }
+
+        @RecipeBuilderMethodDescription
+        public RecipeBuilder summonedMob(EntityEntry summonedMob) {
+            this.summonedMob = summonedMob;
             return this;
         }
 
@@ -195,20 +232,25 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
 
         @Override
         public void validate(GroovyLog.Msg msg) {
-            validateItems(msg, 1, 9, 1, 1);
+            validateItems(msg, 0, 8, 0, 1);
+            msg.add(centerItem == null && input.isEmpty(), "At least one input item must be set");
+            msg.add(centerItem != null && summonedMob != null, "Summon rituals cannot have a center item");
+            msg.add(summonedMob != null && !output.isEmpty(), "The ritual must either output an item or summon a mob, not both");
+            msg.add(summonedMob == null && output.isEmpty(), "The ritual must either output an item or summon a mob");
+            msg.add(summonedMob != null && !EntityLivingBase.class.isAssignableFrom(summonedMob.getEntityClass()), "Only subclasses of EntityLivingBase can be summoned");
             msg.add(pe <= 0, "PE cost must be 1 or more");
             msg.add(name.isEmpty(), "Ritual name must not be empty");
             msg.add(RitualRegistry.instance().getRitual(name) != null, "Ritual with the name {} already exists", name);
             msg.add(bookTier < 0 || bookTier > 4, "Book tier must be between 0 and 4");
             int particleCount = EnumRitualParticle.values().length;
-            msg.add(particle < 0 || particle >= particleCount, "Particle ID must be between 0 and {}", particleCount);
+            msg.add(particle < -1 || particle >= particleCount, "Particle ID must be between 0 and {}", particleCount);
             // NOTE: this breaks with the config tweaking because config tweaking runs in INIT and this recipe is first added in PRE INIT
             // msg.add(dimension == OreDictionary.WILDCARD_VALUE || DimensionDataRegistry.instance().getDataForDim(dimension) != null, "Rituals cannot be performed in dimension {}", dimension);
         }
 
         private Object[] makeInputs() {
             List<Object> inputs = new ArrayList<>();
-            for (IIngredient ing : input.subList(1, input.size())) {
+            for (IIngredient ing : input) {
                 inputs.add(makeObject(ing));
             }
             return inputs.toArray();
@@ -225,10 +267,20 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         @Override
         @Nullable
         @RecipeBuilderRegistrationMethod
-        public NecronomiconInfusionRitual register() {
+        @SuppressWarnings("unchecked")
+        public NecronomiconRitual register() {
             if (!validate()) return null;
-            NecronomiconInfusionRitual ritual = new NecronomiconInfusionRitual(name, bookTier, dimension, pe, sacrifice, output.get(0), makeObject(input.get(0)), makeInputs());
-            ritual.setRitualParticle(EnumRitualParticle.fromId(particle));
+            NecronomiconRitual ritual;
+            if (summonedMob != null) {
+                ritual = new NecronomiconSummonRitual(name, bookTier, dimension, pe, sacrifice, (Class<? extends EntityLivingBase>) summonedMob.getEntityClass(), makeInputs());
+            } else if (centerItem != null) {
+                ritual = new NecronomiconInfusionRitual(name, bookTier, dimension, pe, sacrifice, output.get(0), makeObject(centerItem), makeInputs());
+            } else {
+                ritual = new NecronomiconCreationRitual(name, bookTier, dimension, pe, sacrifice, output.get(0), makeInputs());
+            }
+            if (particle > -1) {
+                ritual.setRitualParticle(EnumRitualParticle.fromId(particle));
+            }
             GSPlugin.instance.ritual.add(ritual);
             return ritual;
         }
