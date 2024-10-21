@@ -11,7 +11,7 @@ groovyscript.wiki.abyssaltweaker.fuel.removeTransmutator=Removes a Transmutator 
 
 groovyscript.wiki.abyssaltweaker.materialization.title=Materialization
 groovyscript.wiki.abyssaltweaker.materialization.description=Turns Crystals from a Crystal Bag into an output item
-groovyscript.wiki.abyssaltweaker.materializer.note=The Materializer compatibility will only take the first item that satisfies each ingredient into account. This is fine if ItemIngredients are used, but will not work with OrIngredients and the like.
+groovyscript.wiki.abyssaltweaker.materializer.note=The Materializer compatibility requires that all input items are Abyssalcraft crystals. This is checked via looking at the first entry of getMatchingStacks, which is then used as the input item. This means the IIngredient used should be obtained via the item Object Mapper.
 
 groovyscript.wiki.abyssaltweaker.ritual.title=Necronomicon Ritual
 groovyscript.wiki.abyssaltweaker.ritual.description=Allows setting up rituals that can be executed with various tiers of Necronomicon
