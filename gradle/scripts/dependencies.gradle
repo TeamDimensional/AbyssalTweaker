@@ -3,7 +3,7 @@ apply from: 'gradle/scripts/helpers.gradle'
 def debug_groovyscript = true
 final def mod_dependencies = [
         'abyssalcraft-53686:5482166': [true],
-        'groovyscript-687577:5635093': [debug_groovyscript],
+        'groovyscript-687577:5789690': [debug_groovyscript],
 ]
 
 final def runtime_dependencies = [
@@ -11,6 +11,7 @@ final def runtime_dependencies = [
         'had-enough-items-557549:4543375': [true],
         'universal-tweaks-705000:5529764': [debug_groovyscript],
         'configanytime-870276:5212709': [debug_groovyscript],
+        'mixin-booter-419286:5739618': [debug_groovyscript],
 ]
 
 repositories {
