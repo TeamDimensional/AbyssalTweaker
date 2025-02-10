@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION, dependencies = "required-after:abyssalcraft@[2.0.0-alpha-1,)")
+@Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION, dependencies = "required-after:abyssalcraft@[2.0.0-beta-1,)")
 public class AbyssalTweaker {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
