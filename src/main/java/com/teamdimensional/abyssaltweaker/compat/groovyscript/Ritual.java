@@ -112,8 +112,8 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         return new RecipeBuilder();
     }
 
-    @Property(property = "input", valid = {@Comp(value = "1", type = Comp.Type.GTE), @Comp(value = "9", type = Comp.Type.LTE)})
-    @Property(property = "output", valid = @Comp("1"))
+    @Property(property = "input", comp = @Comp(gte = 1, lte = 9))
+    @Property(property = "output", comp = @Comp(eq = 1))
     public static class RecipeBuilder extends AbstractRecipeBuilder<NecronomiconRitual> {
 
         @Property
@@ -125,19 +125,19 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
         @Property
         private boolean sacrifice = false;
 
-        @Property(valid = @Comp(value = "1", type = Comp.Type.GTE))
+        @Property(comp = @Comp(gte = 1))
         private int pe = 0;
 
-        @Property(valid = @Comp(value = "empty", type = Comp.Type.NOT))
+        @Property(comp = @Comp(not = "empty"))
         private String name = "";
 
-        @Property(valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(value = "4", type = Comp.Type.LTE)})
+        @Property(comp = @Comp(gte = 0, lte = 4))
         private int bookTier = 0;
 
         @Property(defaultValue = "any dimension")
         private int dimension = OreDictionary.WILDCARD_VALUE;
 
-        @Property(valid = {@Comp(value = "0", type = Comp.Type.GTE), @Comp(type = Comp.Type.LT, value = "8")})
+        @Property(comp = @Comp(gte = 0, lte = 8))
         private int particle = -1;
 
         @RecipeBuilderMethodDescription
@@ -240,7 +240,7 @@ public class Ritual extends VirtualizedRegistry<NecronomiconRitual> {
             msg.add(summonedMob != null && !EntityLivingBase.class.isAssignableFrom(summonedMob.getEntityClass()), "Only subclasses of EntityLivingBase can be summoned");
             msg.add(pe <= 0, "PE cost must be 1 or more");
             msg.add(name.isEmpty(), "Ritual name must not be empty");
-            msg.add(RitualRegistry.instance().getRitual(name) != null, "Ritual with the name {} already exists", name);
+            msg.add(RitualRegistry.instance().getRitualById(name) != null, "Ritual with the name {} already exists", name);
             msg.add(bookTier < 0 || bookTier > 4, "Book tier must be between 0 and 4");
             int particleCount = EnumRitualParticle.values().length;
             msg.add(particle < -1 || particle >= particleCount, "Particle ID must be between 0 and {}", particleCount);
